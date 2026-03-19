@@ -28,7 +28,7 @@ class Plik_proxy: public Plik{
     //na poczatku jest pusty - zwykly plik, potem przy pierwszej inicjaji zmieania sie w plikreal
     std::string nazwa_pliku_;
     public:
-    Plik_proxy (std::string nazwa): nazwa_pliku_(nazwa), plik_(nullptr){}//nullptr nowoczesna wersji NULL
+    Plik_proxy (std::string nazwa);
     virtual const std::vector<float>& daj_dane () const {
         if (!plik_){ //sprawdza czy plik istnieje, jezli nie wywsouluje kosntruktor z plik real
             plik_ = std::make_unique<Plik_real>(nazwa_pliku_);}

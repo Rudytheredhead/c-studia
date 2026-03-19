@@ -62,8 +62,6 @@ class FabrykaRozkladow{
     static void rejestruj (KreatorRozkladu kr,std::string nazwa,int i){
         rozklady[i] = kr;
         nazwy[i] = nazwa;
-       
-
     }
     static std::unique_ptr<Rozklad> utworz(const int & id, const std::vector<float> &dane){
         return std::unique_ptr<Rozklad>( rozklady[id] (dane));
