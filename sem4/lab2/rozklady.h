@@ -15,18 +15,20 @@ class Rozklad{
 
     Rozklad(const std::vector <float>& dane): dane_(dane){}
     virtual ~Rozklad() = default;
-    float get_estymator();
-    std::string get_nazwa();
+    float get_estymator() const ;
+    std::string get_nazwa()const;
 
 };
-typedef Rozklad*(*KreatorRozkladu)(const std::vector <float>&);
+//typedef Rozklad*(*KreatorRozkladu)(const std::vector <float>&); nowa wersjia na uniq ptr
+using KreatorRozkladu = std::unique_ptr<Rozklad>(*)(const std::vector<float>&);
 
 class RozkladGaussa:public Rozklad{
     public:
     RozkladGaussa(const std::vector <float>& dane);
     
-    static Rozklad *kreator (const std::vector <float>& dane){
-        return new RozkladGaussa(dane);
+    static std::unique_ptr<Rozklad> kreator (const std::vector <float>& dane){
+        return std::make_unique <RozkladGaussa>(dane);
+        //zamiast new...
     }
     static const int id;
 };
@@ -35,8 +37,8 @@ class RozkladPoissona:public Rozklad{
     public:
     RozkladPoissona(const std::vector <float>& dane);
     
-    static Rozklad *kreator (const std::vector <float>& dane){
-        return new RozkladPoissona(dane);
+    static std::unique_ptr<Rozklad> kreator (const std::vector <float>& dane){
+        return std::make_unique<RozkladPoissona>(dane);
     }
     static const int id;
 };
@@ -45,8 +47,8 @@ class RozkladLorentza:public Rozklad{
     public:
     RozkladLorentza(const std::vector <float>& dane);
     
-    static Rozklad *kreator (const std::vector <float>& dane){
-        return new RozkladLorentza(dane);
+    static std::unique_ptr<Rozklad> kreator (const std::vector <float>& dane){
+        return std::make_unique<RozkladLorentza>(dane);
     }
     static const int id;
 };
@@ -64,7 +66,7 @@ class FabrykaRozkladow{
         nazwy[i] = nazwa;
     }
     static std::unique_ptr<Rozklad> utworz(const int & id, const std::vector<float> &dane){
-        return std::unique_ptr<Rozklad>( rozklady[id] (dane));
+        return rozklady[id] (dane);
     }
 };
 #endif 

@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     for (int i =1;i<argc;i++){
         try{
             pliki.push_back(std::make_unique<Plik_proxy>(argv[i]));
-        }catch(const std::runtime_error error){
+        }catch(const std::runtime_error& error){
             std::cerr<<error.what()<<"plik "<<argv[i]<<" zostanie usuniety z listy plikow"<<std::endl;
             zle_idx.push_back(i);
         }

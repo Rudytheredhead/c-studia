@@ -1,7 +1,7 @@
 #include"rozklady.h"
 #include <algorithm>
-float Rozklad::get_estymator(){return estymator_;}
-std::string Rozklad::get_nazwa(){return nazwa_;}
+float Rozklad::get_estymator()const{return estymator_;}
+std::string Rozklad::get_nazwa()const{return nazwa_;}
 
 RozkladGaussa::RozkladGaussa(const std::vector<float>&dane):Rozklad(dane){
     float srednia = 0.0;
