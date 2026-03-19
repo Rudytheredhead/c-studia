@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
             if (wybor_roz==0){continue;}
 
             //spr czy jest ok 
-            if (wybor<1 || wybor >3){
+            if (wybor_roz<1 || wybor_roz>3){
                 std::cout<<"podano nie prawidlowa liczbe";continue;}
         
             const std::vector<float>& dane = pliki[wybor-1] ->daj_dane();
