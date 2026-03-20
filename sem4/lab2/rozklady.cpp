@@ -3,17 +3,27 @@
 float Rozklad::get_estymator()const{return estymator_;}
 std::string Rozklad::get_nazwa()const{return nazwa_;}
 
+
+//do liczenia sum mozna bylo by uzyc 
+//float srednia = std::accumulate(dane.begin(), dane.end(), 0.0f)
+//z biblioteki numeric zeby bylo szybciej 
 RozkladGaussa::RozkladGaussa(const std::vector<float>&dane):Rozklad(dane){
     float srednia = 0.0;
     std::for_each(dane.begin(),dane.end(),[&srednia](const float &x){srednia+=x;});
-    estymator_ = srednia/dane.size();
+    if (!dane.empty())
+        estymator_ = srednia/dane.size();
+    else
+        estymator_ =0.0; //mozna byloby ewentualnie jakis blad wyrzucic czy cos takiego
     nazwa_ ="Gauss";
 }
 
 RozkladPoissona::RozkladPoissona(const std::vector<float>&dane):Rozklad(dane){
     float srednia = 0.0;
     std::for_each(dane.begin(),dane.end(),[&srednia](const float &x){srednia+=x;});
-    estymator_ = srednia/dane.size();
+    if (!dane.empty())
+        estymator_ = srednia/dane.size();
+    else
+        estymator_ = 0.0;
     nazwa_ ="Poisson";
 }
 

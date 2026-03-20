@@ -9,7 +9,8 @@
 Plik_real::Plik_real(std::string sciezka_do_pliku){
     
 
-    //ustawianie wilekosci vectora
+    //ustawianie wilekosci vectora - moze byc wadliwe dla innych sciezek i mozna je 
+    //pp usunac ale jak juz jest i dziala to niech bedzie
     //mozna bylo pow() ale zwraca double i tak bedzie bardziej optyym,alnie
     
     int ilosc0 = std::count(sciezka_do_pliku.begin(),sciezka_do_pliku.end(),'0');

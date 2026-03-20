@@ -23,8 +23,8 @@ int main(int argc, char* argv[]) {
 
     for (int i =1;i<argc;i++){
         try{  
-            pliki[i].second = std::make_unique<Plik_proxy>(argv[i]);
-            pliki[i].first = argv[i];
+            pliki[count].second = std::make_unique<Plik_proxy>(argv[i]);
+            pliki[count].first = argv[i];
             count ++;
         }catch(const std::runtime_error& error){
             std::cerr<<error.what()<<"plik "<<argv[i]<<" zostanie usuniety z listy plikow"<<std::endl; 
