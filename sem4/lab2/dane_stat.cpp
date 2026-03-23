@@ -4,6 +4,7 @@
 #include <algorithm>
 #include<iostream>
 #include <stdexcept> //biblioteka do wywalania bledow
+#include <filesystem> //do sprawdzania czy plik istniejie
 
 //faktyczne whrywanie pliku z proxy
 Plik_real::Plik_real(std::string sciezka_do_pliku){
@@ -42,9 +43,9 @@ Plik_real::Plik_real(std::string sciezka_do_pliku){
 
 Plik_proxy::Plik_proxy (std::string nazwa): nazwa_pliku_(nazwa), plik_(nullptr){//nullptr nowoczesna wersji NULL
     //szybko sprawdz czy plik istnieje
-    //mozna bybylo if (fs::exists(sciezka)) z #include <filesystem> zeby bylo szybciej
-    std::ifstream plik(nazwa_pliku_); 
-    if (!plik.is_open()){
+    
+    
+    if (!std::filesystem::exists(nazwa_pliku_)){
         throw std::runtime_error("Blad: Nie mozna otworzyc pliku: " + nazwa_pliku_);
     }
 }
