@@ -38,7 +38,8 @@ Plik_real::Plik_real(std::string sciezka_do_pliku){
     if (dane_.empty()){
         throw std::runtime_error("Blad w pobierniu danych z pliku "+sciezka_do_pliku);
     }
-    std::cout<<"wczytano dane"<<std::endl;
+    else
+        std::cout<<"wczytano dane"<<std::endl;
 }
 
 Plik_proxy::Plik_proxy (std::string nazwa): nazwa_pliku_(nazwa), plik_(nullptr){//nullptr nowoczesna wersji NULL
