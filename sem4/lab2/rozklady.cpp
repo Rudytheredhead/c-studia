@@ -1,6 +1,11 @@
 #include"rozklady.h"
 #include <algorithm>
-float Rozklad::get_estymator()const{return estymator_;}
+#include<iostream>
+void Rozklad::get_estymator()const{
+    for (const auto& [nazwa,wynik]:estymator_){
+        std::cout<<nazwa<<" : "<<wynik<<std::endl;
+    }
+}
 std::string Rozklad::get_nazwa()const{return nazwa_;}
 
 
@@ -11,9 +16,9 @@ RozkladGaussa::RozkladGaussa(const std::vector<float>&dane):Rozklad(dane){
     float srednia = 0.0;
     std::for_each(dane.begin(),dane.end(),[&srednia](const float &x){srednia+=x;});
     if (!dane.empty())
-        estymator_ = srednia/dane.size();
+        estymator_["srednia"] = srednia/dane.size();//dorobic wiecej estymatorow (3/2)
     else
-        estymator_ =0.0; //mozna byloby ewentualnie jakis blad wyrzucic czy cos takiego
+        estymator_["srednia"] =0.0; //mozna byloby ewentualnie jakis blad wyrzucic czy cos takiego
     nazwa_ ="Gauss";
 }
 
@@ -21,9 +26,9 @@ RozkladPoissona::RozkladPoissona(const std::vector<float>&dane):Rozklad(dane){
     float srednia = 0.0;
     std::for_each(dane.begin(),dane.end(),[&srednia](const float &x){srednia+=x;});
     if (!dane.empty())
-        estymator_ = srednia/dane.size();
+        estymator_["srednia"] = srednia/dane.size();
     else
-        estymator_ = 0.0;
+        estymator_["srednia"] = 0.0;
     nazwa_ ="Poisson";
 }
 
@@ -36,11 +41,11 @@ RozkladLorentza::RozkladLorentza(const std::vector<float>&dane):Rozklad(dane){
     
     if (ilosc%2==0){
         idx = ilosc/2;
-        estymator_ = (kopia_danych[idx]+kopia_danych[idx-1])/2.0f;
+        estymator_["mediana"] = (kopia_danych[idx]+kopia_danych[idx-1])/2.0f;
     }
     else{
         idx = (ilosc-1)/2;
-        estymator_ = kopia_danych[idx];
+        estymator_["mediana"] = kopia_danych[idx];
     }
     nazwa_ ="Lorentz";
 }
