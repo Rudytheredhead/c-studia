@@ -68,16 +68,13 @@ int main(int argc, char* argv[]) {
             //ustawinie par dla danego rozkladu    
             std::string operacja ;
             int numer_rozkladu;
-            if(wybor_roz==1){ 
-                operacja ="srednia";
+            if(wybor_roz==1){ //w terio wybor powinien juz sie rownac odpowiedniemu id ale na wszelki wypadek
                 numer_rozkladu = RozkladGaussa::id;       
             }
             else if(wybor_roz==2){ 
-                operacja ="srednia";
                 numer_rozkladu = RozkladPoissona::id;       
             }
-            else if(wybor_roz==3){ 
-                operacja ="mediana";
+            else if(wybor_roz==3){  
                 numer_rozkladu = RozkladLorentza::id;       
             }
 
