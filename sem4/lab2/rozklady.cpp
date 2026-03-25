@@ -13,7 +13,8 @@ std::string Rozklad::get_nazwa()const{return nazwa_;}
 //float srednia = std::accumulate(dane.begin(), dane.end(), 0.0f)
 //z biblioteki numeric zeby bylo szybciej 
 namespace{ //jakby przypadkiem w innym pliku cpp pojawila sie ta sama funkcja 
-constexpr auto policz_srednia = [] (const std::vector<float> &plik) ->float{ //constexpr -> zapobiega napisaniu funkcji
+constexpr auto policz_srednia = [] (const std::vector<float> &plik) ->float{ //const ktore jak moze na epatie kompilacji nadaje stala wartosc jezeli moze. W tym wypadku nie moze 
+//wiec dziala jak normalne cosnt
     float srednia = 0.0; 
     std::for_each(plik.begin(),plik.end(),[&srednia](const float &x){srednia+=x;});
     if (!plik.empty())
@@ -48,21 +49,21 @@ constexpr auto policz_mediane = [](const std::vector<float> &plik)->float{ //moz
 
 }
 
-RozkladGaussa::RozkladGaussa(const std::vector<float>&dane):Rozklad(dane){
+RozkladGaussa::RozkladGaussa(const std::vector<float>&dane){
     estymator_["srednia"] = policz_srednia(dane);
     estymator_["wariancja"] = policz_wariancje(dane,estymator_["srednia"]);
     estymator_["mediana"]= policz_mediane(dane);
     nazwa_ ="Gauss";
 }
 
-RozkladPoissona::RozkladPoissona(const std::vector<float>&dane):Rozklad(dane){
+RozkladPoissona::RozkladPoissona(const std::vector<float>&dane){
     estymator_["srednia"] = policz_srednia(dane);
     estymator_["wariancja"] = policz_wariancje(dane,estymator_["srednia"]);
     estymator_["mediana"]= policz_mediane(dane);
     nazwa_ ="Poisson";
 }
 
-RozkladLorentza::RozkladLorentza(const std::vector<float>&dane):Rozklad(dane){
+RozkladLorentza::RozkladLorentza(const std::vector<float>&dane){
     estymator_["srednia"] = policz_srednia(dane);
     estymator_["mediana"]= policz_mediane(dane);
     nazwa_ ="Lorentz";

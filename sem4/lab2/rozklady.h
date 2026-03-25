@@ -10,10 +10,10 @@ class Rozklad{
 
     std::map<std::string,float> estymator_;
     std::string nazwa_;
-    const std::vector<float>& dane_;
+    
     public:
 
-    Rozklad(const std::vector <float>& dane): dane_(dane){}
+    Rozklad() =default;
     virtual ~Rozklad() = default;
     void get_estymator() const ;
     std::string get_nazwa()const;
