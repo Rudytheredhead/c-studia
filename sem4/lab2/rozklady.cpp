@@ -12,7 +12,7 @@ std::string Rozklad::get_nazwa()const{return nazwa_;}
 //do liczenia sum mozna bylo by uzyc 
 //float srednia = std::accumulate(dane.begin(), dane.end(), 0.0f)
 //z biblioteki numeric zeby bylo szybciej 
-namespace{
+namespace{ //jakby przypadkiem w innym pliku cpp pojawila sie ta sama funkcja 
 constexpr auto policz_srednia = [] (const std::vector<float> &plik) ->float{ //constexpr -> zapobiega napisaniu funkcji
     float srednia = 0.0; 
     std::for_each(plik.begin(),plik.end(),[&srednia](const float &x){srednia+=x;});
