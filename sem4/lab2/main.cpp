@@ -84,6 +84,7 @@ int main(int argc, char* argv[]) {
             //liczenie i print
 
             std::unique_ptr<Rozklad>rozklad (FabrykaRozkladow::utworz(numer_rozkladu,dane));
+            std::cout<<std::endl<<"Wyniki:"<<std::endl;
             rozklad ->get_estymator();
             std::cout<<"-----------------------------"<<std::endl;
         }
