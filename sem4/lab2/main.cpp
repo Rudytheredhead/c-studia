@@ -17,9 +17,9 @@ int main(int argc, char* argv[]) {
 
     
     //dodawanie "pustych " plikow przez proxy
-    //sprawdzanie czy ktorys z plikow nie wywolal errora przy wgrywaniu i zapis do zle idx
+    //sprawdzanie czy ktorys z plikow nie wywolal errora przy wgrywaniu 
     std::map <int,std::pair<std::string,std::unique_ptr<Plik>>> pliki;
-    int count = 1;
+    int count = 0;
 
     for (int i =1;i<argc;i++){
         try{  
@@ -30,28 +30,29 @@ int main(int argc, char* argv[]) {
             std::cerr<<error.what()<<"plik "<<argv[i]<<" zostanie usuniety z listy plikow"<<std::endl; 
         }
     }
-    if (count==1){
+    if (count==0){
         std::cout<<"nie podano zadnego prawidlowego pliku";
         return 0;
     }
-    
     while (true){
         std::cout<<std::endl<<"-----------------------------"<<std::endl;
         //wybierania nr pliku
         std::cout<<"wybierz numer pliku z listy"<<std::endl;
-        for (int i =1;i<=count;i++){
-            std::cout<<i<<". "<<pliki[i].first <<" "; 
+        for (int i =0;i<count;i++){
+            std::cout<<i+1<<". "<<pliki[i].first <<" "; 
         }
         std::cout<<std::endl<<"jezeli chcesz zakonczyc wpisz 0"<<std::endl;
         int wybor;
         std::cin>>wybor;
         if (wybor==0){break;}
+        
 
         //sprawdzenie czy uzytkowanik wprowadzil ok liczbe
         if (wybor<1 || wybor >count){
             std::cout<<"podano nie prawidlowa liczbe";continue;}
  
         try{
+            wybor-=1;
             
             std::cout<<"wybrano plik "<< pliki[wybor].first<<std::endl;
             std::cout<<"wybierz rodzaj rozkladu"<<std::endl<<"1. dla gaussa 2. dla Poissona 3. dla Lorentza"<<std::endl;
@@ -81,7 +82,7 @@ int main(int argc, char* argv[]) {
             //liczenie i print
 
             std::unique_ptr<Rozklad>rozklad (FabrykaRozkladow::utworz(numer_rozkladu,dane));
-            std::cout<<std::endl<<"Wyniki:"<<std::endl;
+            std::cout<<std::endl<<"Wyniki dla rozkladu: "<<rozklad->get_nazwa()<<std::endl;
             rozklad ->get_estymator();
             std::cout<<"-----------------------------"<<std::endl;
         }
