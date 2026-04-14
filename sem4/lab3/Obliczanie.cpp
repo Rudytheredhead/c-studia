@@ -6,6 +6,7 @@
 #include <memory> 
 #include<cmath>
 #include<execution>
+#include <numeric>
 
 
 Srednia::Srednia(const iter &pocz,const iter&konc): pocz_(pocz), konc_(konc) {
@@ -13,14 +14,14 @@ Srednia::Srednia(const iter &pocz,const iter&konc): pocz_(pocz), konc_(konc) {
     }
 void Srednia::operator() (){
         srednia_ =0.0;
-        std::for_each(pocz_,konc_,[this](const float &x){srednia_+=x;});}
+        std::for_each(pocz_,konc_,[this](const double &x){srednia_+=x;});}
 
 Suma_roznic::Suma_roznic(const iter &pocz,const iter&konc,double srednia): pocz_(pocz), konc_(konc),srednia_(srednia) {
         n_ = konc_-pocz_;
     }
 void Suma_roznic::operator() (){
         suma_ =0.0;
-        std::for_each(pocz_,konc_,[this](const float &x){suma_+=(x - srednia_)*(x - srednia_) ;});}
+        std::for_each(pocz_,konc_,[this](const double &x){suma_+=(x - srednia_)*(x - srednia_) ;});}
 std::pair<double,double> licz_sam_podzial (const std::vector<double>& dane, int p) 
 {
     // 1. Zabezpieczenia na wejściu
@@ -100,13 +101,13 @@ std::pair<double,double> liczenie_auto(std::vector<double>& data) {
 }
 
 std::pair<double,double> liczenienie_jeden(std::vector<double>& data){
-    float srednia = 0.0; 
-    std::for_each(data.begin(),data.end(),[&srednia](const float &x){srednia+=x;});
+    double srednia = 0.0; 
+    std::for_each(data.begin(),data.end(),[&srednia](const double &x){srednia+=x;});
     if (!data.empty())
         srednia /= data.size();
     else srednia = 0.0; 
-    float wariancja = 0.0;
-    std::for_each(data.begin(),data.end(),[&wariancja,srednia](const float &x){wariancja+=(srednia - x)*(srednia - x);});
+    double wariancja = 0.0;
+    std::for_each(data.begin(),data.end(),[&wariancja,srednia](const double &x){wariancja+=(srednia - x)*(srednia - x);});
     if (data.size()>1)
         wariancja/=(data.size()-1);
     else wariancja = 0.0;

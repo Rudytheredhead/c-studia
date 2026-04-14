@@ -52,10 +52,10 @@ int main() {
     // Zmienne do usrednienia czasow
     double total_single = 0.0, total_multi = 0.0, total_stl = 0.0;
     
-    // Bufor chroniacy przed usunieciem obliczen przez optymalizator kompilatora (-O3)
+  
     
 
-    // Alokacja pamieci (tylko raz, by nie mierzyc narzutu alokacji systemu)
+
     std::vector<double> data(NUM_ELEMENTS);
     std::pair<double,double> final_res;
     for (int i = 1; i <= NUM_TRIALS; ++i) {
