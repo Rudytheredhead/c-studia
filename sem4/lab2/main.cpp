@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
             
             std::cout<<"wybrano plik "<< pliki[wybor].first<<std::endl;
             std::cout<<"wybierz rodzaj rozkladu"<<std::endl<<"1. dla gaussa 2. dla Poissona 3. dla Lorentza"<<std::endl;
+            //zrobic to automatycznie z mapy z fabryki
             std::cout<<"jezli chcesz zmienic wybor wpisz 0"<<std::endl;
             int wybor_roz;
             std::cin>>wybor_roz;
