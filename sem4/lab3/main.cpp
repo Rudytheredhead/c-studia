@@ -27,12 +27,11 @@ int main() {
     const size_t NUM_ELEMENTS = 10'000'000; // 10 milionow
     const int NUM_TRIALS = 10;              // Min. 10 prob
     
-    // Pobranie liczby rdzeni/watkow wirtualnych procesora
-    unsigned int p = std::thread::hardware_concurrency();
-    if (p == 0) p = 4; // Zabezpieczenie, jesli system nie zwroci wartosci
+    
+    unsigned int p = 4; 
 
     // Otwarcie pliku do zapisu
-    std::ofstream outfile("wyniki_wydajnosci.txt");
+    std::ofstream outfile("wyniki_wydajnosci.txt", std::ios_base::app);
     if (!outfile.is_open()) {
         std::cerr << "Blad: Nie udalo sie utworzyc pliku wyniki_wydajnosci.txt!\n";
         return 0;
@@ -41,7 +40,7 @@ int main() {
     // Naglowek pliku i ekranu
     std::cout << "Test wydajnosci na " << p << " watkach.\nProsze czekac...\n";
     
-    outfile << "=== Porownanie Wydajnosci Obliczen ===\n";
+    outfile << "\n \n=== Porownanie Wydajnosci Obliczen dla "<<p<<" watkow ===\n";
     outfile << "Rozmiar danych: " << NUM_ELEMENTS << " typu double\n";
     outfile << "Liczba watkow (p): " << p << "\n";
     outfile << "Ilosc prob: " << NUM_TRIALS << "\n\n";
