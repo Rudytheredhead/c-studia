@@ -5,7 +5,7 @@ double STALA = 1;
 double Dt  = 0.1;
 int DLUGOSC = 10;
 
-void obliczenie_temp(std::vector<std::vector<int>>& plansza){
+void obliczenie_temp(std::vector<std::vector<float>>& plansza){
     std::vector<std::vector<int>>& plansza_kopia = plansza;
         for (int x = 0; x<DLUGOSC;x++){
             for(int y = 0; y<DLUGOSC;y++){
@@ -13,7 +13,7 @@ void obliczenie_temp(std::vector<std::vector<int>>& plansza){
                 for (int dx = -1; dx<=1; dx++){
                     for (int dy = -1; dy<=1; dy++){
                         if  (dy == dx or dy == -dx){continue;}
-                        if (x+dx <0 || x+dx >9 || y +dy <0 || y+dy >9){continue;}
+                        if (x+dx <0 || x+dx >DLUGOSC-1 || y +dy <0 || y+dy >DLUGOSC-1){continue;}
                         suma+= plansza_kopia[x][y] - plansza_kopia[x+dx][y+dy];
             
 
