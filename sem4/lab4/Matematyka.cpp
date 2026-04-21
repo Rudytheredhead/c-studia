@@ -2,28 +2,31 @@
 #include "Matematyka.h"
 #include <vector>
 #include <SFML/Graphics.hpp>
-float STALA = 1.0f;
-float Dt = 0.2f;
+const float STALA = 50.0f;
+const float Dt = 0.005f; // Przy tych parametrach jedna iteracja pętli = 0.02 sekundy czasu fizycznego
 #include <cmath>
 #include <algorithm>
+#include<iostream> //do usniecia
 //const int DLUGOSC = 800;
-void obliczenie_temp(std::vector<std::vector<float>>& grid){
-    std::vector<std::vector<float>> grid_kopia = grid;
-        for (int x = 0; x<DLUGOSC;x++){
-            for(int y = 0; y<DLUGOSC;y++){
-                double suma = 0.0;
-                for (int dx = -1; dx<=1; dx++){
-                    for (int dy = -1; dy<=1; dy++){
-                        if  (dy == dx or dy == -dx){continue;}
-                        if (x+dx <0 || x+dx >DLUGOSC-1 || y +dy <0 || y+dy >DLUGOSC-1){continue;}
-                        suma+= grid_kopia[x][y] - grid_kopia[x+dx][y+dy];
+void obliczenie_temp(const std::vector<std::vector<float>>& grid_in, std::vector<std::vector<float>>& grid_out) {
+    // Pętle od 1 do DLUGOSC-1 gwarantują, że nie wyjdziemy poza tablicę.
+    // Brzegi pozostaną nieruszone (będą pełnić rolę izolacji/stałej temperatury).
+    for (int x = 1; x < DLUGOSC - 1; x++) {
+        for(int y = 1; y < DLUGOSC - 1; y++) {
             
-
-                    }
-                }
-                grid[x][y] += -STALA*Dt*suma;
-    }}
-};
+            // Bezpośrednie wyliczenie różnic dla 4 sąsiadów (góra, dół, lewo, prawo).
+            // To dokładnie to samo co Twoje pętle z dx/dy, ale miliony razy szybsze.
+            float suma = 0.0f;
+            suma += grid_in[x][y] - grid_in[x+1][y];
+            suma += grid_in[x][y] - grid_in[x-1][y];
+            suma += grid_in[x][y] - grid_in[x][y+1];
+            suma += grid_in[x][y] - grid_in[x][y-1];
+            
+            // Zapis nowego stanu prosto do bufora wyjściowego
+            grid_out[x][y] = grid_in[x][y] - STALA * Dt * suma;
+        }
+    }
+}
 
 void USTAW_KOLOR(std::vector<sf::Uint8>& pixels,int x, int y,int R, int G, int B, int alpha){
     int idx =  (y * DLUGOSC + x) * 4;
@@ -83,20 +86,41 @@ WynikRGB kelvinToRGB(float kelvin) {
 
     // Zabezpieczenie (clamp) przed wyjściem poza zakres 0-255
     WynikRGB wynik;
-    wynik.r = static_cast<unsigned char>(std::clamp(r * 255.0f, 0.0f, 255.0f));
-    wynik.g = static_cast<unsigned char>(std::clamp(g * 255.0f, 0.0f, 255.0f));
-    wynik.b = static_cast<unsigned char>(std::clamp(b * 255.0f, 0.0f, 255.0f));
+    wynik.r = static_cast<unsigned char>(std::clamp(r , 0.0f, 255.0f));
+    wynik.g = static_cast<unsigned char>(std::clamp(g , 0.0f, 255.0f));
+    wynik.b = static_cast<unsigned char>(std::clamp(b , 0.0f, 255.0f));
 
     return wynik;
 }
 
 void zmiania_temp_na_rgb(std::vector<std::vector<float>>& grid, std::vector<sf::Uint8>& pixels) {
-    for(int x = 0; x<DLUGOSC-1;x++){
-        for (int y = 0;y<DLUGOSC-1;y++){
+    for(int x = 0; x<DLUGOSC;x++){
+        for (int y = 0;y<DLUGOSC;y++){
             float temp = grid[x][y];
             WynikRGB kolor = kelvinToRGB(temp);
             
             USTAW_KOLOR(pixels, x,y,kolor.r,kolor.g,kolor.b);
+        }
+    }
+}
+
+void podgrzewanie_grida(std::vector<std::pair<int,int>>&idxy, std::vector<std::vector<float>>& grid_A,std::vector<std::vector<float>>& grid_B,float moc,float promien){
+    int r = static_cast<int>(promien);
+    for (const auto pos:idxy){
+        int mouse_x = pos.first;
+        int mouse_y = pos.second;
+        //std::cout<<mouse_x<<mouse_y;
+        for (int dx = -r;dx<r+1;dx++){
+            for (int dy= -r;dy <r+1;dy++){
+                int x = mouse_x + dx;
+                int y = mouse_y + dy;
+                if (x>0 && x<DLUGOSC && y>0 && y<DLUGOSC ){
+                    grid_A[x][y] += moc;
+                    grid_B[x][y] += moc;
+
+
+                }
+            }
         }
     }
 }
