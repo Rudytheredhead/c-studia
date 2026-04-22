@@ -21,6 +21,7 @@ std::mutex grid_mutex;                       // Zabezpiecza grid_render
 std::atomic<bool> is_running{true};          // Flaga do bezpiecznego wyłączenia wątku
 std::vector<std::pair<int,int>> idx_do_kolorowania;
 std::mutex idx_mutex;
+bool nowa_klatka = false;
 
 std::barrier bariera(LICZBA_WATKOW);
 
@@ -59,11 +60,13 @@ void Watek_Obliczanie(int watek) {
     if (start==0) start =1;
     if (koniec ==DLUGOSC) koniec =DLUGOSC -1;
 
-
+    std::vector<float> bufor_roboczy;
+    if (watek==0) bufor_roboczy.resize(DLUGOSC*DLUGOSC,0.0f);
     if (watek ==0 )
     {
         std::lock_guard<std::mutex> lock(grid_mutex);
-        grid_render = grid_A;
+        std::swap(grid_render, bufor_roboczy);
+        nowa_klatka = true;
     }
     
     while (is_running) {
@@ -102,12 +105,15 @@ void Watek_Obliczanie(int watek) {
         }
 
         if (watek==0)
-        {   
-            // Przekazanie zaktualizowanej siatki (grid_A ma teraz najnowszy stan)
-            std::lock_guard<std::mutex> lock(grid_mutex);
-            grid_render = grid_A;
+        {
+            bufor_roboczy = grid_A;
+            {   
+                // Przekazanie zaktualizowanej siatki (grid_A ma teraz najnowszy stan)
+                std::lock_guard<std::mutex> lock(grid_mutex);
+                std::swap(grid_render,bufor_roboczy);
+                nowa_klatka = true;
+            }
         }
-       
         bariera.arrive_and_wait();
         // Niewielkie opóźnienie, aby rdzeń CPU mógł "odetchnąć"
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
@@ -119,7 +125,7 @@ void Watek_Obliczanie(int watek) {
 
 int main() {
     sf::Font czcionka;
-    // Zawsze sprawdzaj, czy wczytanie się powiodło. To najczęstsze miejsce błędów!
+    
     if (!czcionka.loadFromFile("arial.ttf")) { 
         std::cerr << "Błąd: Nie znaleziono pliku arial.ttf w folderze z programem!" << std::endl;
         // Warto przerwać działanie programu lub ustawić flagę błędu
@@ -143,6 +149,9 @@ int main() {
     napis_promien.setOutlineThickness(2.0f);
     napis_promien.setPosition(x_promien, 10.0f); 
 
+    std::vector<float> grid_render_copy(DLUGOSC*DLUGOSC, 0.0f);    
+    bool rysuj_nowe = false;
+
     sf::RenderWindow window(sf::VideoMode(DLUGOSC,DLUGOSC), "Rozchodzenie ciepla");
     //window.setFramerateLimit(60);
 
@@ -150,7 +159,7 @@ int main() {
     for (int i = 0; i<LICZBA_WATKOW;i++){
         watki.push_back(std::thread(Watek_Obliczanie,i));
     }
-    std::vector<float> grid_render_copy;
+    
 
     // Tworzymy tablicę bajtów: szerokość * wysokość * 4 kolory (RGBA)
     // Używamy std::vector dla bezpiecznego zarządzania pamięcią
@@ -176,10 +185,7 @@ int main() {
             pedzel_promien.sprawdzZdarzenia(event,window);
         }
 
-        {
-            std::lock_guard<std::mutex> lock(grid_mutex);
-            grid_render_copy = grid_render;
-        }
+      
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&& !pedzel_moc.czy_ciagniety() &&!pedzel_promien.czy_ciagniety() ) {
         // Pobierz pozycję myszki względem okna
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
@@ -194,9 +200,19 @@ int main() {
             }
 
     }
-
+        rysuj_nowe = false;
+        {
+            std::lock_guard<std::mutex> lock(grid_mutex);
+            if (nowa_klatka){
+                std::swap(grid_render_copy,grid_render);
+                rysuj_nowe = true;
+                nowa_klatka = false;
+            }
+        }
+        if (rysuj_nowe){
         zmiania_temp_na_rgb(grid_render_copy, pixels);
         texture.update(pixels.data());
+    }
         // for (std::vector<float> v:grid_render_copy){
         //     for (float i :v){
         //         std::cout<<i;
