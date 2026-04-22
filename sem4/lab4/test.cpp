@@ -11,14 +11,23 @@
 #include<string>
 #include <sstream>  // Do operacji na strumieniach tekstowych (stringstream)
 #include <iomanip>  // Do manipulacji formatem (setprecision)
+#include <barrier>
+
 
 // Zmienne współdzielone między wątkami
 // Inicjalizujemy grid_render od razu wymiarami DLUGOSC x DLUGOSC wypełnionymi 0.0f
-std::vector<std::vector<float>> grid_render(DLUGOSC, std::vector<float>(DLUGOSC, 0.0f));
+std::vector<float> grid_render(DLUGOSC*DLUGOSC, 0.0f);
 std::mutex grid_mutex;                       // Zabezpiecza grid_render
 std::atomic<bool> is_running{true};          // Flaga do bezpiecznego wyłączenia wątku
 std::vector<std::pair<int,int>> idx_do_kolorowania;
 std::mutex idx_mutex;
+
+std::barrier bariera(LICZBA_WATKOW);
+
+
+std::vector<float> grid_A(DLUGOSC*DLUGOSC, 0.0f);
+std::vector<float> grid_B(DLUGOSC*DLUGOSC, 0.0f);
+std::vector<std::pair<int,int>> idx_do_kolorowania_kopia;
 
 
 //const int DLUGOSC = 800; //wielkosc pola
@@ -38,45 +47,42 @@ Suwak pedzel_promien(x_promien, 30.0f, szerokosc, 20.0f, 1.0f, 20.0f, 5.0f );
 
 
 
-void Watek_Obliczanie() {
+void Watek_Obliczanie(int watek) {
     // Tworzymy DWA bufory tylko raz, na początku życia wątku
-    std::vector<std::vector<float>> grid_A(DLUGOSC, std::vector<float>(DLUGOSC, 0.0f));
-    std::vector<std::vector<float>> grid_B(DLUGOSC, std::vector<float>(DLUGOSC, 0.0f));
-    std::vector<std::pair<int,int>> idx_do_kolorowania_kopia;
 
-    // for (int x = srodek_x - promien; x < srodek_x + promien; x++) {
-    //             for (int y = srodek_y - promien; y < srodek_y + promien; y++) {
-    //                 grid_A[x][y] = 20000.0f;
-    //                 grid_B[x][y] = 20000.0f;
-    //             }
-    //         }
+    
             
     // Ustawianie warunków początkowych w obu buforach
-    
-    
+    int start = watek*DLUGOSC/LICZBA_WATKOW;
+    int koniec = start + DLUGOSC/LICZBA_WATKOW;
+
+    if (start==0) start =1;
+    if (koniec ==DLUGOSC) koniec =DLUGOSC -1;
+
+
+    if (watek ==0 )
     {
         std::lock_guard<std::mutex> lock(grid_mutex);
         grid_render = grid_A;
     }
     
     while (is_running) {
-        {
-            std::lock_guard<std::mutex> lock(idx_mutex);
-            std::swap(idx_do_kolorowania_kopia,idx_do_kolorowania);
+        if (watek==0){
+
+            {
+                std::lock_guard<std::mutex> lock(idx_mutex);
+                std::swap(idx_do_kolorowania_kopia,idx_do_kolorowania);
+                
+            }
             
+            podgrzewanie_grida(idx_do_kolorowania_kopia, grid_A, grid_B,pedzel_moc.pobierz_wartosc(), pedzel_promien.pobierz_wartosc());
+            idx_do_kolorowania_kopia.clear();
         }
-        // for (const auto pos:idx_do_kolorowania_kopia){
-        //     int mouse_x = pos.first;
-        //     int mouse_y = pos.second;
-        //     std::cout<<mouse_x<<" "<<mouse_y<<std::endl;
-        // }
-        podgrzewanie_grida(idx_do_kolorowania_kopia, grid_A, grid_B,pedzel_moc.pobierz_wartosc(), pedzel_promien.pobierz_wartosc());
-        idx_do_kolorowania_kopia.clear();
 
 
         // Przeliczamy symulację X razy między klatkami
         // Możesz teraz swobodnie dać tu nawet 100 iteracji, procesor tego nie poczuje!
-        for(int i = 0; i < 150; i++) {
+        for(int i = 0; i < 50; i++) {
             // for (int x = srodek_x - promien; x < srodek_x + promien; x++) {
             //     for (int y = srodek_y - promien; y < srodek_y + promien; y++) {
             //         grid_A[x][y] = 20000.0f;
@@ -84,19 +90,25 @@ void Watek_Obliczanie() {
             //     }
             // }
             // 1. Liczymy nowy stan na podstawie grid_A i zapisujemy do grid_B
-            obliczenie_temp(grid_A, grid_B);
+            obliczenie_temp(grid_A, grid_B,start);
             
             // 2. Zamieniamy je rolami. std::swap po prostu podmienia 
             // ukryte wskaźniki wektorów bez przesuwania danych w RAM-ie.
-            std::swap(grid_A, grid_B);
+            
+        
+            bariera.arrive_and_wait();
+            if (watek==0)std::swap(grid_A, grid_B);
+            bariera.arrive_and_wait();
         }
 
+        if (watek==0)
         {   
             // Przekazanie zaktualizowanej siatki (grid_A ma teraz najnowszy stan)
             std::lock_guard<std::mutex> lock(grid_mutex);
             grid_render = grid_A;
         }
-        
+       
+        bariera.arrive_and_wait();
         // Niewielkie opóźnienie, aby rdzeń CPU mógł "odetchnąć"
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }
@@ -132,11 +144,13 @@ int main() {
     napis_promien.setPosition(x_promien, 10.0f); 
 
     sf::RenderWindow window(sf::VideoMode(DLUGOSC,DLUGOSC), "Rozchodzenie ciepla");
-    window.setFramerateLimit(20);
+    //window.setFramerateLimit(60);
 
-
-    std::thread worker_thread(Watek_Obliczanie);
-    std::vector<std::vector<float>> grid_render_copy;
+    std::vector<std::thread> watki;
+    for (int i = 0; i<LICZBA_WATKOW;i++){
+        watki.push_back(std::thread(Watek_Obliczanie,i));
+    }
+    std::vector<float> grid_render_copy;
 
     // Tworzymy tablicę bajtów: szerokość * wysokość * 4 kolory (RGBA)
     // Używamy std::vector dla bezpiecznego zarządzania pamięcią
@@ -155,6 +169,9 @@ int main() {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) window.close();
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape){
+                window.close();
+            }
             pedzel_moc.sprawdzZdarzenia(event,window);
             pedzel_promien.sprawdzZdarzenia(event,window);
         }
@@ -207,7 +224,9 @@ int main() {
         window.display();
     }
     is_running = false; // Zatrzymanie pętli w worker_thread
-    worker_thread.join(); // Czekanie na poprawne zamknięcie wątku obliczeniowego
+    for (std::thread& watek:watki){
+        if (watek.joinable()) watek.join();
+    } // Czekanie na poprawne zamknięcie wątku obliczeniowego
 
     return 0;
 }
