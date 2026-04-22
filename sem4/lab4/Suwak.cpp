@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 Suwak::Suwak(float x, float y, float szerokosc, float wysokosc, float min_v, float max_v, float start_v): 
-    min_(min_v), max_(max_v), wartosc_(start_v)
+    min_(min_v), max_(max_v), wartosc_(start_v), czy_ciagniety_(false)
     {
         tlo_.setPosition(x,y);
         tlo_.setSize(sf::Vector2f(szerokosc,wysokosc));

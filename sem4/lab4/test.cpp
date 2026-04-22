@@ -12,7 +12,16 @@
 #include <sstream>  // Do operacji na strumieniach tekstowych (stringstream)
 #include <iomanip>  // Do manipulacji formatem (setprecision)
 #include <barrier>
+///////////////////////////////////
 
+
+
+
+//TESTOWY PLIK -> TU NIE MA NIC WAZNEGO PATRZ main.cpp
+
+
+
+/////////////////////////
 
 // Zmienne współdzielone między wątkami
 // Inicjalizujemy grid_render od razu wymiarami DLUGOSC x DLUGOSC wypełnionymi 0.0f
@@ -81,6 +90,7 @@ void Watek_Obliczanie(int watek) {
             podgrzewanie_grida(idx_do_kolorowania_kopia, grid_A, grid_B,pedzel_moc.pobierz_wartosc(), pedzel_promien.pobierz_wartosc());
             idx_do_kolorowania_kopia.clear();
         }
+        bariera.arrive_and_wait();
 
 
         // Przeliczamy symulację X razy między klatkami

@@ -109,8 +109,8 @@ WynikRGB kelvinToRGB(float kelvin) {
 
 // Słowo const chroni tablicę przed przypadkową modyfikacją w trakcie działania programu
 const std::vector<WynikRGB> mapa_temperatur = []() {
-    std::vector<WynikRGB> lut(30000);
-    for (int temp = 0; temp < 30000; temp++) {
+    std::vector<WynikRGB> lut(max_temp);
+    for (int temp = 0; temp < max_temp; temp++) {
         lut[temp] = kelvinToRGB(static_cast<float>(temp));
     }
     return lut;
@@ -138,7 +138,7 @@ void podgrzewanie_grida(std::vector<std::pair<int,int>>&idxy,std::vector<float>&
             for (int dx= -r;dx <r+1;dx++){
                 int x = mouse_x + dx;
                 int y = mouse_y + dy;
-                if (x>0 && x<DLUGOSC && y>0 && y<DLUGOSC ){
+                if (x>1 && x<DLUGOSC-1 && y>1 && y<DLUGOSC-1 ){
                     grid_A[y*DLUGOSC+x] += moc;
                     grid_B[y*DLUGOSC+x] += moc;
 

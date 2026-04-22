@@ -163,7 +163,8 @@ int main() {
     bool rysuj_nowe = false;
 
     sf::RenderWindow window(sf::VideoMode(DLUGOSC,DLUGOSC), "Rozchodzenie ciepla");
-    //window.setFramerateLimit(60);
+    window.setFramerateLimit(60);
+    
 
     std::vector<std::thread> watki;
     for (int i = 0; i<LICZBA_WATKOW;i++){
